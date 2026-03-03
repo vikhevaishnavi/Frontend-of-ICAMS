@@ -1,0 +1,75 @@
+<div class="approvals-container">
+
+    <div class="header-section">
+        <div>
+            <h1 class="page-title">Approval Management</h1>
+            <p class="subtitle">Review and process high-value transactions flagged for authorization.</p>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="approvals-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Account</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                    <th class="text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let req of pendingApprovals">
+                    <td class="date-cell">
+                        <div class="time">{{ req.timestamp | date:'shortTime' }}</div>
+                        <div class="date">{{ req.timestamp | date:'mediumDate' }}</div>
+                    </td>
+                    <td class="fw-600">{{ req.accountId }}</td>
+                    <td>
+                        <span class="type-badge" [ngClass]="req.type.toLowerCase()">
+                            {{ req.type }}
+                        </span>
+                    </td>
+                    <td class="font-mono amount-cell" [ngClass]="req.type === 'DEPOSIT' ? 'text-green' : 'text-red'">
+                        {{ req.type === 'DEPOSIT' ? '+' : '-' }}{{ req.amount | currency:'INR':'symbol':'1.0-0' }}
+                    </td>
+                    <td class="desc-cell" [title]="req.description">{{ req.description || 'No description provided.' }}
+                    </td>
+                    <td class="actions-cell text-right">
+
+                        <div class="action-buttons" *ngIf="processingId !== req.id">
+                            <button class="btn-icon btn-approve" (click)="handleDecision(req.id, 'COMPLETED')"
+                                title="Approve">
+                                <lucide-angular [img]="CheckCircle"></lucide-angular>
+                                <span>Approve</span>
+                            </button>
+                            <button class="btn-icon btn-reject" (click)="handleDecision(req.id, 'REJECTED')"
+                                title="Reject">
+                                <lucide-angular [img]="XCircle"></lucide-angular>
+                                <span>Reject</span>
+                            </button>
+                        </div>
+
+                        <div class="processing-state" *ngIf="processingId === req.id">
+                            Processing...
+                        </div>
+
+                    </td>
+                </tr>
+
+                <!-- Empty State -->
+                <tr *ngIf="pendingApprovals.length === 0">
+                    <td colspan="6" class="empty-state">
+                        <div class="empty-content">
+                            <span class="emoji">🎉</span>
+                            <h3>No Pending Approvals</h3>
+                            <p>You're all caught up! There are no transactions currently requiring manager
+                                authorization.</p>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

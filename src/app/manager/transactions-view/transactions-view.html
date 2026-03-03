@@ -1,0 +1,55 @@
+<div class="transaction-management-container">
+
+    <div class="header-section">
+        <div>
+            <h1 class="page-title">Transaction History</h1>
+            <p class="subtitle">Read-only comprehensive log of all branch transactions.</p>
+        </div>
+    </div>
+
+    <!-- Transactions Table -->
+    <div class="table-container">
+        <table class="transaction-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Account</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let txn of transactions" [class.pending-row]="txn.status === 'PENDING'">
+                    <td class="date-cell">
+                        <div class="time">{{ txn.timestamp | date:'shortTime' }}</div>
+                        <div class="date">{{ txn.timestamp | date:'mediumDate' }}</div>
+                    </td>
+                    <td>
+                        <span class="type-badge" [ngClass]="txn.type.toLowerCase()">
+                            {{ txn.type }}
+                        </span>
+                    </td>
+                    <td class="fw-600">{{ txn.accountId }}</td>
+                    <td class="font-mono amount-cell" [ngClass]="txn.type === 'DEPOSIT' ? 'text-green' : 'text-red'">
+                        {{ txn.type === 'DEPOSIT' ? '+' : '-' }}{{ txn.amount | currency:'INR':'symbol':'1.0-0' }}
+                    </td>
+                    <td class="desc-cell">{{ txn.description || '--' }}</td>
+                    <td>
+                        <span class="status-badge" [ngClass]="txn.status.toLowerCase()">
+                            {{ txn.status }}
+                        </span>
+                    </td>
+                </tr>
+
+                <!-- Empty State -->
+                <tr *ngIf="transactions.length === 0">
+                    <td colspan="6" class="empty-state">
+                        No transactions found.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

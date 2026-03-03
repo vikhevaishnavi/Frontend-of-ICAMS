@@ -1,0 +1,42 @@
+<div class="dashboard-container">
+    <div class="header">
+        <h1 class="page-title">Officer Dashboard</h1>
+        <p class="subtitle">Quick overview of accounts and transactions.</p>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stats-grid">
+        <!-- Total Accounts -->
+        <div class="stat-card">
+            <div class="stat-icon bg-blue-100 text-blue-600">
+                <lucide-angular [img]="Users"></lucide-angular>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">Total Custom Accounts</p>
+                <h3 class="stat-value">{{ totalAccounts }}</h3>
+            </div>
+        </div>
+
+        <!-- Approved Transactions -->
+        <div class="stat-card">
+            <div class="stat-icon bg-green-100 text-green-600">
+                <lucide-angular [img]="CheckCircle"></lucide-angular>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">Approved Transactions</p>
+                <h3 class="stat-value">{{ approvedTransactions }}</h3>
+            </div>
+        </div>
+
+        <!-- Pending Transactions -->
+        <div class="stat-card">
+            <div class="stat-icon bg-orange-100 text-orange-600">
+                <lucide-angular [img]="CheckCircle"></lucide-angular>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">Pending Transactions</p>
+                <h3 class="stat-value text-orange-600">{{ pendingTransactions }}</h3>
+            </div>
+        </div>
+    </div>
+</div>

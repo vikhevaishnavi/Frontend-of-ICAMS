@@ -1,0 +1,223 @@
+:host {
+    display: block;
+}
+
+.approvals-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 8px;
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 4px 0;
+}
+
+.subtitle {
+    color: #64748b;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* TABLE STYLES */
+.table-container {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    overflow-x: auto;
+}
+
+.approvals-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    min-width: 900px;
+}
+
+.approvals-table th {
+    background-color: #f8fafc;
+    padding: 16px 24px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.approvals-table td {
+    padding: 18px 24px;
+    font-size: 0.95rem;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+.approvals-table tbody tr {
+    transition: background-color 0.2s;
+}
+
+.approvals-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.approvals-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.fw-600 {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.font-mono {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.date-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.date-cell .time {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.date-cell .date {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.amount-cell {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.text-green {
+    color: #16a34a;
+}
+
+.text-red {
+    color: #dc2626;
+}
+
+.desc-cell {
+    color: #64748b;
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* BADGES */
+.type-badge {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: #f1f5f9;
+    color: #475569;
+}
+
+/* ACTION BUTTONS */
+.action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+}
+
+.btn-icon lucide-angular {
+    width: 16px;
+    height: 16px;
+}
+
+.btn-approve {
+    color: #16a34a;
+    border-color: #bbf7d0;
+}
+
+.btn-approve:hover {
+    background-color: #dcfce7;
+    border-color: #22c55e;
+}
+
+.btn-reject {
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+.btn-reject:hover {
+    background-color: #fee2e2;
+    border-color: #ef4444;
+}
+
+.processing-state {
+    color: #64748b;
+    font-size: 0.9rem;
+    font-style: italic;
+    padding: 6px 12px;
+}
+
+/* EMPTY STATE */
+.empty-state {
+    padding: 60px 24px !important;
+}
+
+.empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #64748b;
+}
+
+.empty-content .emoji {
+    font-size: 3rem;
+    margin-bottom: 8px;
+}
+
+.empty-content h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #334155;
+}
+
+.empty-content p {
+    margin: 0;
+    max-width: 400px;
+    text-align: center;
+}

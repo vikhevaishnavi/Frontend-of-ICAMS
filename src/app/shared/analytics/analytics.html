@@ -1,0 +1,84 @@
+<div class="analytics-container">
+
+    <div class="header-section">
+        <div>
+            <h1 class="page-title">Analytics & Reporting</h1>
+            <p class="subtitle">Comprehensive overview of institutional metrics and ledger data.</p>
+        </div>
+        <button class="btn-primary export-btn" (click)="exportDataToExcel()" [disabled]="isExporting">
+            <lucide-angular [img]="Download"></lucide-angular>
+            <span>{{ isExporting ? 'Generating Excel...' : 'Export to Excel' }}</span>
+        </button>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon bg-blue-100 text-blue-600">
+                <lucide-angular [img]="Users"></lucide-angular>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">Total Accounts</p>
+                <h3 class="stat-value">{{ totalAccounts | number }}</h3>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-green-100 text-green-600">
+                <lucide-angular [img]="Wallet"></lucide-angular>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">Total Holding Balance</p>
+                <h3 class="stat-value">{{ totalBalance | currency:'INR':'symbol':'1.0-0' }}</h3>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-purple-100 text-purple-600">
+                <lucide-angular [img]="ArrowRightLeft"></lucide-angular>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">Total Transactions</p>
+                <h3 class="stat-value">{{ totalTxnCount | number }}</h3>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-orange-100 text-orange-600">
+                <lucide-angular [img]="TrendingUp"></lucide-angular>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">Total Transaction Value</p>
+                <h3 class="stat-value">{{ totalTxnValue | currency:'INR':'symbol':'1.0-0' }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="charts-grid">
+
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Account Growth</h3>
+                <span class="subtitle">Last 6 Months</span>
+            </div>
+            <div class="chart-body">
+                <canvas baseChart [type]="'line'" [data]="lineChartData" [options]="lineChartOptions">
+                </canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Branch Performance</h3>
+                <span class="subtitle">Deposits vs Loans</span>
+            </div>
+            <div class="chart-body">
+                <canvas baseChart [type]="'bar'" [data]="barChartData" [options]="barChartOptions">
+                </canvas>
+            </div>
+        </div>
+
+    </div>
+
+</div>

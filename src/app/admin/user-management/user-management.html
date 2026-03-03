@@ -1,0 +1,123 @@
+<div class="user-management-container">
+
+    <div class="header-section">
+        <div>
+            <h1 class="page-title">User Management</h1>
+            <p class="subtitle">Manage internal banking users, roles, and branch assignments.</p>
+        </div>
+        <button class="btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Cancel' : 'Create New User' }}
+        </button>
+    </div>
+
+    <!-- Create User Form (Slide In/Out) -->
+    <div class="form-panel" *ngIf="showCreateForm" [@slideInOut]>
+        <div class="panel-header">
+            <h2>Create New User</h2>
+        </div>
+
+        <form (ngSubmit)="onCreateUser()" class="create-form">
+            <div class="form-grid">
+                <div class="input-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" name="firstName" [(ngModel)]="newUser.firstName" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" name="lastName" [(ngModel)]="newUser.lastName" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" [(ngModel)]="newUser.email" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="branch">Branch Code</label>
+                    <input type="text" id="branch" name="branch" [(ngModel)]="newUser.branch" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="role">Role</label>
+                    <select id="role" name="role" [(ngModel)]="newUser.role" required>
+                        <option value="Manager">Manager</option>
+                        <option value="Officer">Officer</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="status">Initial Status</label>
+                    <select id="status" name="status" [(ngModel)]="newUser.status" required>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" (click)="toggleCreateForm()">Cancel</button>
+                <button type="submit" class="btn-primary" [disabled]="isSubmitting">
+                    {{ isSubmitting ? 'Creating...' : 'Create User' }}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Users Table -->
+    <div class="table-container">
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Branch</th>
+                    <th>Status</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let user of users">
+                    <td>
+                        <div class="user-cell">
+                            <div class="avatar-small">
+                                {{ user.firstName?.charAt(0) }}{{ user.lastName?.charAt(0) }}
+                            </div>
+                            <span class="fw-600">{{ user.firstName }} {{ user.lastName }}</span>
+                        </div>
+                    </td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <span class="role-badge" [ngClass]="user.role.toLowerCase()">
+                            {{ user.role }}
+                        </span>
+                    </td>
+                    <td>{{ user.branch }}</td>
+                    <td>
+                        <span class="status-indicator" [class.active]="user.status === 'Active'">
+                            {{ user.status }}
+                        </span>
+                    </td>
+                    <td class="actions-cell">
+                        <button class="action-btn edit-btn" (click)="editUser(user)" title="Edit User">
+                            <lucide-angular [img]="Edit2"></lucide-angular>
+                        </button>
+                        <button class="action-btn toggle-btn" [class.suspend]="user.status === 'Active'"
+                            [class.activate]="user.status === 'Inactive'" (click)="toggleUserStatus(user)"
+                            [title]="user.status === 'Active' ? 'Suspend User' : 'Activate User'">
+                            <lucide-angular [img]="Power"></lucide-angular>
+                        </button>
+                    </td>
+                </tr>
+
+                <!-- Empty State -->
+                <tr *ngIf="users.length === 0">
+                    <td colspan="6" class="empty-state">
+                        No users found. Click "Create New User" to add one.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
