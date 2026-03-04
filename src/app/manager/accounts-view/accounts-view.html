@@ -1,14 +1,19 @@
 <div class="account-management-container">
-
+ 
     <div class="header-section">
         <div>
             <h1 class="page-title">Accounts Directory</h1>
             <p class="subtitle">Read-only overview of all branch customer accounts.</p>
         </div>
     </div>
-
+ 
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="empty-state">
+        Loading accounts...
+    </div>
+ 
     <!-- Accounts Table -->
-    <div class="table-container">
+    <div class="table-container" *ngIf="!isLoading">
         <table class="account-table">
             <thead>
                 <tr>
@@ -24,21 +29,23 @@
                 <tr *ngFor="let account of accounts">
                     <td class="fw-600">{{ account.accountNumber }}</td>
                     <td>{{ account.customerName }}</td>
-                    <td>
-                        <span class="type-badge" [ngClass]="account.type.toLowerCase().replace(' ', '-')">
-                            {{ account.type }}
-                        </span>
+                    <td>{{ account.type }}</td>
+                    <td class="font-mono">
+                        {{ account.balance | currency:'INR':'symbol':'1.0-0' }}
                     </td>
-                    <td class="font-mono">{{ account.balance | currency:'INR':'symbol':'1.0-0' }}</td>
                     <td>
-                        <span class="status-indicator" [class.active]="account.status === 'Active'"
-                            [class.pending]="account.status === 'Pending'">
+                        <span
+                          [ngClass]="{
+                            'status-active': account.status === 'Active',
+                            'status-closed': account.status === 'Closed',
+                            'status-pending': account.status === 'Pending'
+                          }">
                             {{ account.status }}
                         </span>
                     </td>
-                    <td>{{ account.createdAt | date:'shortDate' }}</td>
+                    <td>{{ account.createdAt | date:'mediumDate' }}</td>
                 </tr>
-
+ 
                 <!-- Empty State -->
                 <tr *ngIf="accounts.length === 0">
                     <td colspan="6" class="empty-state">
@@ -49,3 +56,5 @@
         </table>
     </div>
 </div>
+ 
+ 

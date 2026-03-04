@@ -1,114 +1,126 @@
+ 
+ 
+ 
 <div class="transaction-management-container">
-
-    <div class="header-section">
-        <div>
-            <h1 class="page-title">Transaction Management</h1>
-            <p class="subtitle">Initiate deposits, withdrawals, and transfers.</p>
-        </div>
-        <button class="btn-primary" (click)="toggleTransactionForm()">
-            {{ showTransactionForm ? 'Cancel' : 'Initiate Transaction' }}
-        </button>
-    </div>
-
-    <!-- Initiate Transaction Form (Slide In/Out) -->
-    <div class="form-panel" *ngIf="showTransactionForm">
-        <div class="panel-header">
-            <h2>New Transaction</h2>
-        </div>
-
-        <form (ngSubmit)="onInitiateTransaction()" class="create-form">
-            <div class="form-grid">
-                <div class="input-group">
-                    <label for="accountId">Account ID</label>
-                    <input type="text" id="accountId" name="accountId" [(ngModel)]="newTransaction.accountId"
-                        placeholder="e.g. ACC01" required>
-                </div>
-
-                <div class="input-group">
-                    <label for="type">Transaction Type</label>
-                    <select id="type" name="type" [(ngModel)]="newTransaction.type" required>
-                        <option value="DEPOSIT">Deposit</option>
-                        <option value="WITHDRAWAL">Withdrawal</option>
-                        <option value="TRANSFER">Transfer</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label for="amount">Amount (₹)</label>
-                    <input type="number" id="amount" name="amount" [(ngModel)]="newTransaction.amount" min="1" required>
-                </div>
-
-                <div class="input-group full-width">
-                    <label for="description">Description</label>
-                    <input type="text" id="description" name="description" [(ngModel)]="newTransaction.description"
-                        placeholder="Optional details...">
-                </div>
-            </div>
-
-            <div class="approval-notice" *ngIf="newTransaction.amount > 100000">
-                <span class="notice-icon">⚠️</span>
-                <div>
-                    <strong>Manager Approval Required</strong>
-                    <p>Transactions exceeding ₹100,000 will be held in a <em>PENDING</em> state until approved by a
-                        Manager.</p>
-                </div>
-            </div>
-
-            <div class="form-actions">
-                <button type="button" class="btn-secondary" (click)="toggleTransactionForm()">Cancel</button>
-                <button type="submit" class="btn-primary" [disabled]="isSubmitting || newTransaction.amount <= 0">
-                    {{ isSubmitting ? 'Processing...' : 'Submit Transaction' }}
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Transactions Table -->
-    <div class="table-container">
-        <div class="table-header">
-            <h3>Transaction History</h3>
-        </div>
-        <table class="transaction-table">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Type</th>
-                    <th>Account</th>
-                    <th>Amount</th>
-                    <th>Description</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let txn of transactions" [class.pending-row]="txn.status === 'PENDING'">
-                    <td class="date-cell">
-                        <div class="time">{{ txn.timestamp | date:'shortTime' }}</div>
-                        <div class="date">{{ txn.timestamp | date:'mediumDate' }}</div>
-                    </td>
-                    <td>
-                        <span class="type-badge" [ngClass]="txn.type.toLowerCase()">
-                            {{ txn.type }}
-                        </span>
-                    </td>
-                    <td class="fw-600">{{ txn.accountId }}</td>
-                    <td class="font-mono amount-cell" [ngClass]="txn.type === 'DEPOSIT' ? 'text-green' : 'text-red'">
-                        {{ txn.type === 'DEPOSIT' ? '+' : '-' }}{{ txn.amount | currency:'INR':'symbol':'1.0-0' }}
-                    </td>
-                    <td class="desc-cell">{{ txn.description || '--' }}</td>
-                    <td>
-                        <span class="status-badge" [ngClass]="txn.status.toLowerCase()">
-                            {{ txn.status }}
-                        </span>
-                    </td>
-                </tr>
-
-                <!-- Empty State -->
-                <tr *ngIf="transactions.length === 0">
-                    <td colspan="6" class="empty-state">
-                        No transactions found.
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+<div class="header-section">
+<div>
+<h1 class="page-title">Transaction Management</h1>
+<p class="subtitle">Initiate deposits, withdrawals, and transfers.</p>
 </div>
+<button *ngIf="!isEmbedded" class="btn-primary" (click)="showInitiateForm = !showInitiateForm">
+
+      {{ showInitiateForm ? 'Cancel' : 'Initiate Transaction' }}
+</button>
+</div>
+ 
+  <div class="toast" *ngIf="noticeMessage">{{ noticeMessage }}</div>
+ 
+  <div class="form-panel" *ngIf="showInitiateForm && !isEmbedded">
+<div class="panel-header">
+<h2>New Transaction</h2>
+</div>
+<div class="form-grid">
+<div class="input-group">
+<label>Transaction Type</label>
+<select [(ngModel)]="transactionData.type">
+<option value="Deposit">Deposit</option>
+<option value="Withdraw">Withdraw</option>
+<option value="Transfer">Transfer</option>
+</select>
+</div>
+ 
+      <div class="input-group" *ngIf="transactionData.type !== 'Transfer'">
+<label>Account ID</label>
+<input 
+
+          type="text" 
+
+          [(ngModel)]="transactionData.fromAccountId" 
+
+          (change)="validateAccount(transactionData.fromAccountId, 'from')"
+
+          placeholder="e.g. ACC001 or customer account number"
+>
+<small [style.color]="fromAccountError.includes('✓') ? 'green' : fromAccountError.includes('✗') ? 'red' : 'gray'">
+
+          {{ fromAccountError }}
+</small>
+</div>
+ 
+      <div class="input-group" *ngIf="transactionData.type === 'Transfer'">
+<label>From Account ID</label>
+<input 
+
+          type="text" 
+
+          [(ngModel)]="transactionData.fromAccountId" 
+
+          (change)="validateAccount(transactionData.fromAccountId, 'from')"
+
+          placeholder="e.g. ACC001 or customer account number"
+>
+<small [style.color]="fromAccountError.includes('✓') ? 'green' : fromAccountError.includes('✗') ? 'red' : 'gray'">
+
+          {{ fromAccountError }}
+</small>
+</div>
+ 
+      <div class="input-group" *ngIf="transactionData.type === 'Transfer'">
+<label>To Account ID (Destination)</label>
+<input 
+
+          type="text" 
+
+          [(ngModel)]="transactionData.toAccountId" 
+
+          (change)="validateAccount(transactionData.toAccountId, 'to')"
+
+          placeholder="e.g. ACC002 or customer account number"
+>
+<small [style.color]="toAccountError.includes('✓') ? 'green' : toAccountError.includes('✗') ? 'red' : 'gray'">
+
+          {{ toAccountError }}
+</small>
+</div>
+ 
+      <div class="input-group">
+<label>Amount (₹)</label>
+<input type="number" [(ngModel)]="transactionData.amount" placeholder="0">
+</div>
+</div>
+<div class="form-actions">
+<button class="btn-secondary" (click)="showInitiateForm = false" [disabled]="isLoading">Cancel</button>
+<button class="btn-primary" (click)="onInitiate()" [disabled]="isLoading">{{ isLoading ? 'Processing...' : 'Submit Transaction' }}</button>
+</div>
+</div>
+ 
+  <div class="table-container">
+<div class="table-header">
+<h3>Transaction History</h3>
+</div>
+<div *ngIf="transactions.length === 0" style="padding: 40px; text-align: center; color: #64748b;">No transactions found.</div>
+<table class="transaction-table" *ngIf="transactions.length > 0">
+<thead>
+<tr>
+<th>Date</th>
+<th>Type</th>
+<th>AccountID</th>
+<th>Amount</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr *ngFor="let tx of transactions">
+<td>{{ tx.timestamp ? (tx.timestamp | date:'short') : '-' }}</td>
+<td><span [ngClass]="'type-badge ' + (tx.type?.toLowerCase() || 'deposit')">{{ tx.type }}</span></td>
+<td class="font-mono fw-600">
+
+            {{ tx.type === 'TRANSFER' ? (tx.fromAccountId || tx.accountId || '-') + ' → ' + (tx.toAccountId || '-') : (tx.accountId || tx.fromAccountId || '-') }}
+</td>
+<td class="fw-600">₹{{ tx.amount || '0' }}</td>
+<td><span [ngClass]="'status-indicator ' + (tx.status?.toLowerCase() || 'pending')">{{ tx.status || '-' }}</span></td>
+</tr>
+</tbody>
+</table>
+</div> </div>
+ 

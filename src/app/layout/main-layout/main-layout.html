@@ -1,118 +1,125 @@
+ 
+ 
+ 
 <div class="layout-container">
-
+ 
     <!-- Sidebar -->
-    <aside class="sidebar" [class.closed]="!sidebarOpen">
-        <div class="sidebar-header">
-            <div class="logo-icon"></div>
-            <span class="logo-text" *ngIf="sidebarOpen">InternalBank</span>
-        </div>
-
-        <nav class="sidebar-nav">
-            <ul>
-                <!-- Admin Links -->
-                <ng-container *ngIf="currentUser?.role === 'Admin'">
-                    <li class="nav-item" routerLink="/app/admin" routerLinkActive="active"
-                        [routerLinkActiveOptions]="{exact: true}">
-                        <lucide-angular [img]="LayoutDashboard" class="nav-icon"></lucide-angular>
-                        <span class="nav-text" *ngIf="sidebarOpen">Dashboard</span>
-                    </li>
-                    <li class="nav-item" routerLink="/app/admin/users" routerLinkActive="active">
-                        <lucide-angular [img]="UserCircle" class="nav-icon"></lucide-angular>
-                        <span class="nav-text" *ngIf="sidebarOpen">Users</span>
-                    </li>
-                    <li class="nav-item" routerLink="/app/admin/analytics" routerLinkActive="active">
-                        <lucide-angular [img]="BarChartBig" class="nav-icon"></lucide-angular>
-                        <span class="nav-text" *ngIf="sidebarOpen">Analytics</span>
-                    </li>
-                </ng-container>
-
-                <!-- Officer Links -->
-                <ng-container *ngIf="currentUser?.role === 'Officer'">
-                    <li class="nav-item" routerLink="/app/officer" routerLinkActive="active"
-                        [routerLinkActiveOptions]="{exact: true}">
-                        <lucide-angular [img]="LayoutDashboard" class="nav-icon"></lucide-angular>
-                        <span class="nav-text" *ngIf="sidebarOpen">Dashboard</span>
-                    </li>
-                    <li class="nav-item" routerLink="/app/officer/accounts" routerLinkActive="active">
-                        <lucide-angular [img]="Wallet" class="nav-icon"></lucide-angular>
-                        <span class="nav-text" *ngIf="sidebarOpen">Accounts</span>
-                    </li>
-                    <li class="nav-item" routerLink="/app/officer/transactions" routerLinkActive="active">
-                        <lucide-angular [img]="ArrowRightLeft" class="nav-icon"></lucide-angular>
-                        <span class="nav-text" *ngIf="sidebarOpen">Transactions</span>
-                    </li>
-                </ng-container>
-
-                <!-- Manager Links -->
-                <ng-container *ngIf="currentUser?.role === 'Manager'">
-                    <li class="nav-item" routerLink="/app/manager" routerLinkActive="active"
-                        [routerLinkActiveOptions]="{exact: true}">
-                        <lucide-angular [img]="LayoutDashboard" class="nav-icon"></lucide-angular>
-                        <span class="nav-text" *ngIf="sidebarOpen">Dashboard</span>
-                    </li>
-                    <li class="nav-item" routerLink="/app/manager/approvals" routerLinkActive="active">
-                        <lucide-angular [img]="ClipboardCheck" class="nav-icon"></lucide-angular>
-                        <span class="nav-text" *ngIf="sidebarOpen">Approvals</span>
-                    </li>
-                    <li class="nav-item" routerLink="/app/manager/accounts" routerLinkActive="active">
-                        <lucide-angular [img]="Wallet" class="nav-icon"></lucide-angular>
-                        <span class="nav-text" *ngIf="sidebarOpen">Accounts</span>
-                    </li>
-                    <li class="nav-item" routerLink="/app/manager/transactions" routerLinkActive="active">
-                        <lucide-angular [img]="ArrowRightLeft" class="nav-icon"></lucide-angular>
-                        <span class="nav-text" *ngIf="sidebarOpen">Transactions</span>
-                    </li>
-                    <li class="nav-item" routerLink="/app/manager/analytics" routerLinkActive="active">
-                        <lucide-angular [img]="BarChartBig" class="nav-icon"></lucide-angular>
-                        <span class="nav-text" *ngIf="sidebarOpen">Analytics & Reports</span>
-                    </li>
-                </ng-container>
-
-                <li class="nav-item">
-                    <lucide-angular [img]="Settings" class="nav-icon"></lucide-angular>
-                    <span class="nav-text" *ngIf="sidebarOpen">Settings</span>
-                </li>
-            </ul>
-        </nav>
-
-        <div class="sidebar-footer" *ngIf="sidebarOpen">
-            <div class="role-badge">
-                {{ currentUser?.role || 'Guest' }}
-            </div>
-        </div>
-    </aside>
-
-    <!-- Main Content Area -->
-    <div class="main-wrapper">
-        <!-- Header -->
-        <header class="app-header">
-            <div class="header-left">
-                <button class="icon-button" (click)="toggleSidebar()">
-                    <lucide-angular [img]="Menu"></lucide-angular>
-                </button>
-                <span class="page-title">Dashboard Overview</span>
-            </div>
-
-            <div class="header-right">
-                <div class="user-info">
-                    <div class="avatar">
-                        {{ currentUser?.firstName?.charAt(0) || 'U' }}{{ currentUser?.lastName?.charAt(0) || '' }}
-                    </div>
-                    <div class="user-details">
-                        <span class="user-name">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</span>
-                        <span class="user-role">{{ currentUser?.role }}</span>
-                    </div>
-                </div>
-
-                <button class="icon-button logout-btn" (click)="logout()" title="Logout">
-                    <lucide-angular [img]="LogOut"></lucide-angular>
-                </button>
-            </div>
-        </header>
-
-        <!-- Content -->
-        <main class="content-area">
-            <router-outlet></router-outlet>
-        </main>
-    </div>
+<aside class="sidebar" [class.closed]="!sidebarOpen">
+<div class="sidebar-header">
+<div class="logo-icon"></div>
+<span class="logo-text" *ngIf="sidebarOpen">InternalBank</span>
 </div>
+ 
+        <nav class="sidebar-nav">
+<ul>
+<!-- Admin Links -->
+<ng-container *ngIf="currentUser?.role === 'Admin'">
+<li class="nav-item" routerLink="/app/admin" routerLinkActive="active"
+
+                        [routerLinkActiveOptions]="{exact: true}">
+<lucide-angular [img]="LayoutDashboard" class="nav-icon"></lucide-angular>
+<span class="nav-text" *ngIf="sidebarOpen">Dashboard</span>
+</li>
+<li class="nav-item" routerLink="/app/admin/users" routerLinkActive="active">
+<lucide-angular [img]="UserCircle" class="nav-icon"></lucide-angular>
+<span class="nav-text" *ngIf="sidebarOpen">Users</span>
+</li>
+<li class="nav-item" routerLink="/app/admin/analytics" routerLinkActive="active">
+<lucide-angular [img]="BarChartBig" class="nav-icon"></lucide-angular>
+<span class="nav-text" *ngIf="sidebarOpen">Analytics</span>
+</li>
+</ng-container>
+ 
+                <!-- Officer Links -->
+<ng-container *ngIf="currentUser?.role === 'Officer'">
+<li class="nav-item" routerLink="/app/officer" routerLinkActive="active"
+
+                        [routerLinkActiveOptions]="{exact: true}">
+<lucide-angular [img]="LayoutDashboard" class="nav-icon"></lucide-angular>
+<span class="nav-text" *ngIf="sidebarOpen">Dashboard</span>
+</li>
+<li class="nav-item" routerLink="/app/officer/accounts" routerLinkActive="active">
+<lucide-angular [img]="Wallet" class="nav-icon"></lucide-angular>
+<span class="nav-text" *ngIf="sidebarOpen">Accounts</span>
+</li>
+<li class="nav-item" routerLink="/app/officer/transactions" routerLinkActive="active">
+<lucide-angular [img]="ArrowRightLeft" class="nav-icon"></lucide-angular>
+<span class="nav-text" *ngIf="sidebarOpen">Transactions</span>
+</li>
+</ng-container>
+ 
+                <!-- Manager Links -->
+<ng-container *ngIf="currentUser?.role === 'Manager'">
+<li class="nav-item" routerLink="/app/manager" routerLinkActive="active"
+
+                        [routerLinkActiveOptions]="{exact: true}">
+<lucide-angular [img]="LayoutDashboard" class="nav-icon"></lucide-angular>
+<span class="nav-text" *ngIf="sidebarOpen">Dashboard</span>
+</li>
+<li class="nav-item" routerLink="/app/manager/approvals" routerLinkActive="active">
+<lucide-angular [img]="ClipboardCheck" class="nav-icon"></lucide-angular>
+<span class="nav-text" *ngIf="sidebarOpen">Approvals</span>
+</li>
+<li class="nav-item" routerLink="/app/manager/accounts" routerLinkActive="active">
+<lucide-angular [img]="Wallet" class="nav-icon"></lucide-angular>
+<span class="nav-text" *ngIf="sidebarOpen">Accounts</span>
+</li>
+<li class="nav-item" routerLink="/app/manager/transactions" routerLinkActive="active">
+<lucide-angular [img]="ArrowRightLeft" class="nav-icon"></lucide-angular>
+<span class="nav-text" *ngIf="sidebarOpen">Transactions</span>
+</li>
+<li class="nav-item" routerLink="/app/manager/analytics" routerLinkActive="active">
+<lucide-angular [img]="BarChartBig" class="nav-icon"></lucide-angular>
+<span class="nav-text" *ngIf="sidebarOpen">Analytics & Reports</span>
+</li>
+</ng-container>
+ 
+                <!-- settings link removed per officer UX request -->
+</ul>
+</nav>
+ 
+        <div class="sidebar-footer" *ngIf="sidebarOpen">
+<div class="role-badge">
+
+                {{ currentUser?.role || 'Guest' }}
+</div>
+</div>
+</aside>
+ 
+    <!-- Main Content Area -->
+<div class="main-wrapper">
+<!-- Header -->
+<header class="app-header">
+<div class="header-left">
+<button class="icon-button" (click)="toggleSidebar()">
+<lucide-angular [img]="Menu"></lucide-angular>
+</button>
+<span class="page-title">Dashboard Overview</span>
+</div>
+ 
+            <div class="header-right">
+<div class="user-info">
+<div class="avatar">
+
+                        {{ currentUser?.firstName?.charAt(0) || 'U' }}{{ currentUser?.lastName?.charAt(0) || '' }}
+</div>
+<div class="user-details">
+<span class="user-name">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</span>
+<span class="user-role">{{ currentUser?.role }}</span>
+</div>
+</div>
+ 
+                <button class="icon-button logout-btn" (click)="logout()" title="Logout">
+<lucide-angular [img]="LogOut"></lucide-angular>
+</button>
+</div>
+</header>
+ 
+        <!-- Content -->
+<main class="content-area">
+<router-outlet></router-outlet>
+</main>
+</div>
+</div>
+
+ 

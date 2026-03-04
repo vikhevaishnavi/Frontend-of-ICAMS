@@ -2,11 +2,22 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
-import { AccountService } from '../../core/services/account';
-import { TransactionService } from '../../core/services/transaction';
-import { LucideAngularModule, Users, IndianRupee, Activity, CheckCircle } from 'lucide-angular';
-import { of } from 'rxjs';
+import { AccountService, Account } from '../../core/services/account';
+import { TransactionService, Transaction } from '../../core/services/transaction';
+import { 
+  LucideAngularModule, 
+  Users, 
+  IndianRupee, 
+  Activity, 
+  CheckCircle, 
+  Edit2,   // <--- Add this
+  Power    // <--- Add this
+} from 'lucide-angular';
+// ADD forkJoin TO THIS IMPORT
+import { forkJoin, of } from 'rxjs'; 
 import { catchError } from 'rxjs/operators';
+import { UserService } from '../../core/services/user';
+import { FormsModule } from '@angular/forms'; // Required for newUser binding
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -16,20 +27,39 @@ import { catchError } from 'rxjs/operators';
   styleUrls: ['./dashboard.css']
 })
 export class Dashboard implements OnInit {
+  
   private accountService = inject(AccountService);
   private transactionService = inject(TransactionService);
+  private userService = inject(UserService);
 
   // Icons
   readonly Users = Users;
   readonly IndianRupee = IndianRupee;
   readonly Activity = Activity;
   readonly CheckCircle = CheckCircle;
+  readonly Edit2 = Edit2;
+  readonly Power = Power;
 
   // Stats
+  totalUsers = 0;
   totalAccounts = 0;
   totalBalance = 0;
   totalTransactions = 0;
   pendingApprovals = 0;
+
+
+  users: any[] = [];
+  isSubmitting = false;
+  showCreateForm = false;
+
+  newUser = {
+    name: '',
+    email: '',
+    password :'' ,
+    role: 'Officer',
+    branch: '',
+    status: 'Active'
+  };
 
   // Pie Chart (Account Type Distribution)
   public pieChartOptions: ChartConfiguration['options'] = {
@@ -51,6 +81,7 @@ export class Dashboard implements OnInit {
       line: { tension: 0.4 } // smooth curves
     }
   };
+
   public lineChartData: ChartConfiguration['data'] = {
     datasets: [
       {
@@ -63,7 +94,7 @@ export class Dashboard implements OnInit {
         fill: 'origin',
       }
     ],
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   };
   public lineChartType: ChartType = 'line';
 
@@ -71,62 +102,139 @@ export class Dashboard implements OnInit {
     this.loadDashboardData();
   }
 
-  loadDashboardData() {
-    // Attempt to load from APIs, providing fallback mock data if the real APIs fail.
-    // This allows the UI to render correctly regardless of backend availability.
+ loadDashboardData() {
+    forkJoin({
+        accounts: this.accountService.getAllAccounts().pipe(catchError(() => of([]))),
+        transactions: this.transactionService.getAllTransactions().pipe(catchError(() => of([]))),
+        users: this.userService.getUsers().pipe(catchError(() => of([])))
+    }).subscribe({
+        next: (res: any) => {
+            const accounts: Account[] = res.accounts || [];
+            const transactions: Transaction[] = res.transactions || [];
+            const users: any[] = res.users || [];
 
-    this.accountService.getAllAccounts().pipe(
-      catchError(() => {
-        // Fallback Mock Data for demo purposes if backend isn't up
-        return of([
-          { id: '1', accountNumber: 'ACC01', type: 'Savings', balance: 154000, status: 'Active', userId: 'U1', createdAt: '' },
-          { id: '2', accountNumber: 'ACC02', type: 'Current', balance: 3450000, status: 'Active', userId: 'U2', createdAt: '' },
-          { id: '3', accountNumber: 'ACC03', type: 'Savings', balance: 50000, status: 'Pending', userId: 'U3', createdAt: '' },
-          { id: '4', accountNumber: 'ACC04', type: 'Fixed Deposit', balance: 500000, status: 'Active', userId: 'U4', createdAt: '' }
-        ]);
-      })
-    ).subscribe(accounts => {
-      this.totalAccounts = accounts.length;
-      this.totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
-      this.pendingApprovals = accounts.filter(a => a.status === 'Pending').length;
+            // 1. Update Stats Cards
+            this.totalAccounts = accounts.length;
+            this.totalUsers = users.length;
+            this.totalTransactions = transactions.length;
 
-      // Update Pie Chart Data
-      const savings = accounts.filter(a => a.type === 'Savings').length;
-      const current = accounts.filter(a => a.type === 'Current').length;
-      const fd = accounts.filter(a => a.type === 'Fixed Deposit').length;
-      const loan = accounts.filter(a => a.type === 'Loan').length;
+            // Mapping balances
+            this.totalBalance = accounts.reduce((sum: number, acc: any) => 
+                sum + (acc.balance || acc.Balance || 0), 0);
 
-      this.pieChartData = {
-        labels: ['Savings', 'Current', 'Fixed Deposit', 'Loan'],
-        datasets: [{
-          data: [savings, current, fd, loan],
-          backgroundColor: ['#3b82f6', '#a855f7', '#ec4899', '#f59e0b']
-        }]
-      };
+            // FIX: Checking for both 'status' and 'Status' for Pending Approvals
+            this.pendingApprovals = accounts.filter((a: any) => 
+    (a.status === 'Pending' || a.Status === 'Pending')
+).length;
+
+            // 2. Update Pie Chart
+            const types = ['Savings', 'Current', 'Fixed Deposit', 'Loan'];
+            const counts = types.map((t: string) => 
+                accounts.filter((a: any) => (a.type === t || a.AccountType === t)).length
+            );
+
+            this.pieChartData = {
+                labels: types,
+                datasets: [{ 
+                    data: counts, 
+                    backgroundColor: ['#3b82f6', '#a855f7', '#ec4899', '#f59e0b'] 
+                }]
+            };
+
+            this.processMonthlyTrends(transactions);
+        },
+        error: (err: any) => console.error("Dashboard Load Failed", err)
     });
+}
 
-    this.transactionService.getAllTransactions().pipe(
-      catchError(() => {
-        // Fallback Mock Data
-        return of([
-          { id: '1', accountId: '1', amount: 5000, type: 'CREDIT', status: 'COMPLETED', timestamp: '2026-01-15T10:00:00Z', description: '' },
-          { id: '2', accountId: '2', amount: 12000, type: 'DEBIT', status: 'COMPLETED', timestamp: '2026-02-20T10:00:00Z', description: '' },
-          { id: '3', accountId: '1', amount: 3000, type: 'CREDIT', status: 'COMPLETED', timestamp: '2026-03-01T10:00:00Z', description: '' },
-          { id: '4', accountId: '4', amount: 15000, type: 'CREDIT', status: 'COMPLETED', timestamp: '2026-04-10T10:00:00Z', description: '' }
-        ] as any[]);
-      })
-    ).subscribe(transactions => {
-      this.totalTransactions = transactions.length;
+  processMonthlyTrends(transactions: Transaction[]) {
+  const currentYear = new Date().getFullYear();
+  const monthlyVolumes = new Array(12).fill(0);
 
-      // Mock aggregate line chart data based on mock transactions (simplified)
-      // In a real scenario, we'd map timestamps to months
-      this.lineChartData = {
-        ...this.lineChartData,
-        datasets: [{
-          ...this.lineChartData.datasets[0],
-          data: [5000, 12000, 3000, 15000, 25000, 18000, 32000] // Populating mock trends
-        }]
-      };
-    });
+  transactions.forEach(txn => {
+    // FALLBACK: Check for both 'timestamp' and 'TransactionDate' if mapping failed
+    const rawDate = txn.timestamp || (txn as any).TransactionDate || (txn as any).transactionDate;
+    const amount = txn.amount || (txn as any).Amount || 0;
+    
+    if (rawDate) {
+      const date = new Date(rawDate);
+      if (date.getFullYear() === currentYear) {
+        monthlyVolumes[date.getMonth()] += amount;
+      }
+    }
+  });
+
+  this.lineChartData = {
+      ...this.lineChartData,
+      datasets: [{ ...this.lineChartData.datasets[0], data: monthlyVolumes }]
+    };
+}
+
+  // Inside your UserManagement class
+
+toggleCreateForm() {
+  this.showCreateForm = !this.showCreateForm;
+}
+
+loadUsers() {
+  this.userService.getUsers().subscribe({
+    next: (data) => {
+      this.users = data;
+      this.totalUsers = data.length;
+    },
+    error: (err) => console.error('Failed to refresh users', err)
+  });
+}
+
+
+onCreateUser() {
+  // DEBUG: Check what the component actually sees before validating
+  console.log('Current newUser data:', this.newUser);
+
+  // 2. STRICT VALIDATION: Only check for the fields present in your form
+  // We remove any hidden checks for 'firstName' or 'lastName'
+  const isValid = 
+    this.newUser.name.trim() !== '' && 
+    this.newUser.email.trim() !== '' && 
+    this.newUser.password.trim() !== '' && 
+    this.newUser.branch.trim() !== '' &&
+    this.newUser.role !== '';
+
+  if (!isValid) {
+    alert("Please fill all required fields");
+    return;
   }
+
+  this.isSubmitting = true;
+  this.userService.createUser(this.newUser).subscribe({
+    next: (res) => {
+      alert("User created successfully!");
+      this.loadUsers(); 
+      this.toggleCreateForm();
+      this.isSubmitting = false;
+      // Reset form
+      this.newUser = { name: '', email: '', password: '', role: 'Officer', branch: '', status: 'Active' };
+    },
+    error: (err) => {
+      console.error('Backend Error:', err);
+      this.isSubmitting = false;
+      alert(err.error?.message || "Backend rejected the request. Check console.");
+    }
+  });
+}
+
+toggleUserStatus(user: any) {
+  // Use the ID from your database (usually UserID or id)
+  const userId = user.UserID || user.id;
+  const newStatus = user.Status === 'Active' ? 'Inactive' : 'Active';
+
+  this.userService.updateUserStatus(userId, newStatus).subscribe({
+    next: () => {
+      alert(`User status updated to ${newStatus}`);
+      this.loadUsers(); // Refresh the list
+    },
+    error: (err) => alert("Failed to update status")
+  });
+}
+
 }

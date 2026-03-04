@@ -1,98 +1,282 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+ 
+ 
+ 
+import { Component, OnInit } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
-import { AccountService, Account } from '../../core/services/account';
-import { catchError, of } from 'rxjs';
 
+import { CommonModule } from '@angular/common';
+
+import { AccountService } from '../../core/services/account';
+ 
 @Component({
+
   selector: 'app-account-management',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
+
   templateUrl: './account-management.html',
-  styleUrls: ['./account-management.css']
+
+  styleUrls: ['./account-management.css'],
+
+  standalone: true,
+
+  imports: [FormsModule, CommonModule]
+
 })
-export class AccountManagement implements OnInit {
-  private accountService = inject(AccountService);
 
-  accounts: Account[] = [];
+export class AccountManagementComponent implements OnInit {
 
-  // Create Account Form State
+  accounts: any[] = [];
+
   showCreateForm = false;
+
+  isLoading = false;
+
+  editingId: string | null = null;
+
+  isEmbedded = false; // Set to true when embedded in dashboard
+
   newAccount: any = {
+
     customerName: '',
+
     customerId: '',
-    type: 'Savings',
+
+    accountType: 'Savings',
+
     branch: '',
-    balance: 0
+
+    initialDeposit: 0,
+
+    status: 'Active'
+
   };
+ 
+  constructor(private accountService: AccountService) {}
+ 
+  ngOnInit(): void {
 
-  isSubmitting = false;
+    // Automatically fetches data from DB when you open this section
 
-  ngOnInit() {
     this.loadAccounts();
+
   }
+ 
+  loadAccounts(): void {
 
-  loadAccounts() {
-    this.accountService.getAllAccounts().pipe(
-      catchError(() => {
-        // Fallback Mock Data if API is unavailable
-        return of([
-          { id: '1', accountNumber: 'ACC01', type: 'Savings', balance: 154000, status: 'Active', userId: 'CUST-001', createdAt: '2026-01-10T10:00:00Z', customerName: 'Alice Smith' },
-          { id: '2', accountNumber: 'ACC02', type: 'Current', balance: 3450000, status: 'Active', userId: 'CUST-002', createdAt: '2026-02-15T11:30:00Z', customerName: 'Bob Jones' },
-        ] as any[]); // Using any to sidestep strict typing for mocked customerName on Account interface
-      })
-    ).subscribe(data => {
-      this.accounts = data;
-    });
-  }
+    this.isLoading = true;
 
-  toggleCreateForm() {
-    this.showCreateForm = !this.showCreateForm;
-    this.resetForm();
-  }
+    this.accountService.getAllAccounts().subscribe({
 
-  resetForm() {
-    this.newAccount = {
-      customerName: '',
-      customerId: '',
-      type: 'Savings',
-      branch: '',
-      balance: 0
-    };
-  }
+      next: (data: any[]) => {
 
-  onCreateAccount() {
-    if (!this.newAccount.customerName || !this.newAccount.customerId || !this.newAccount.branch) {
-      alert('Please fill all required fields');
-      return;
-    }
+        console.log('=== Accounts loaded in component ===');
 
-    this.isSubmitting = true;
+        console.log('Number of accounts:', data?.length);
 
-    // Attempt API Call to POST /api/v1/Accounts/create
-    this.accountService.createAccount(this.newAccount).pipe(
-      catchError(() => {
-        // Mock success if backend isn't ready
-        const createdMock = {
-          ...this.newAccount,
-          id: Date.now().toString(),
-          accountNumber: 'ACC' + Math.floor(Math.random() * 10000),
-          status: 'Active',
-          createdAt: new Date().toISOString()
-        };
-        return of(createdMock);
-      })
-    ).subscribe({
-      next: (account) => {
-        this.accounts.unshift(account);
-        this.isSubmitting = false;
-        this.toggleCreateForm();
-        alert('Account created successfully');
+        if (data && data.length > 0) {
+
+          console.log('First account accountNumber:', data[0].accountNumber);
+
+          console.log('All accountNumbers:', data.map(a => a.accountNumber));
+
+        }
+
+        this.accounts = data && Array.isArray(data) ? data : [];
+
+        this.isLoading = false;
+
       },
-      error: () => {
-        this.isSubmitting = false;
-        alert('Failed to create account');
+
+      error: (err: any) => {
+
+        console.error('Error fetching accounts', err);
+
+        this.accounts = [];
+
+        this.isLoading = false;
+
       }
+
     });
+
   }
+ 
+  onSubmitAccount(): void {
+
+    if (!this.newAccount.customerName || !this.newAccount.customerId) {
+
+      alert('Please fill in all required fields');
+
+      return;
+
+    }
+ 
+    // If editing, call update
+
+    if (this.editingId) {
+
+      this.accountService.updateAccount(this.editingId, this.newAccount).subscribe({
+
+        next: (res: any) => {
+
+          console.log('Account updated:', res);
+
+          alert('Account updated successfully');
+
+          this.showCreateForm = false;
+
+          this.editingId = null;
+
+          setTimeout(() => this.loadAccounts(), 300);
+
+          this.newAccount = { customerName: '', customerId: '', accountType: 'Savings', branch: '', initialDeposit: 0, status: 'Active' };
+
+        },
+
+        error: (err: any) => {
+
+          console.error('Error updating account:', err);
+
+          alert('Error updating account: ' + (err?.error?.message || 'Unknown error'));
+
+        }
+
+      });
+
+      return;
+
+    }
+ 
+    // Map client form fields to backend expectation. Backend expects a 'Balance' or
+
+    // similar field name, not 'initialDeposit'. Provide a payload that uses common
+
+    // backend keys so the created account shows the correct initial balance.
+
+    const payload = {
+
+      CustomerName: this.newAccount.customerName,
+
+      CustomerID: this.newAccount.customerId,
+
+      AccountType: this.newAccount.accountType,
+
+      Branch: this.newAccount.branch,
+
+      Balance: Number(this.newAccount.initialDeposit) || 0,
+
+      Status: this.newAccount.status
+
+    };
+ 
+    this.accountService.createAccount(payload).subscribe({
+
+      next: (res: any) => {
+
+        console.log('Account created:', res);
+
+        alert('Account Created Successfully!');
+
+        this.showCreateForm = false;
+
+        // Immediately show a temporary account in the list with the provided initial balance
+
+        // so the user sees the expected result while the server-verified list is reloaded.
+
+        const nowIso = new Date().toISOString();
+
+        const tempAcc = {
+
+          id: res?.id || payload.CustomerID || String(Date.now()),
+
+          accountNumber: res?.accountNumber || payload.CustomerID || String(Date.now()),
+
+          customerName: payload.CustomerName,
+
+          type: payload.AccountType || 'Savings',
+
+          balance: payload.Balance || 0,
+
+          status: payload.Status || 'Active',
+
+          createdAt: res?.createdAt || nowIso,
+
+          branch: payload.Branch || ''
+
+        };
+
+        this.accounts = [tempAcc, ...this.accounts];
+ 
+        // Refresh the list shortly after creation so mapping logic runs and server data is authoritative
+
+        setTimeout(() => this.loadAccounts(), 500);
+
+        this.newAccount = { customerName: '', customerId: '', accountType: 'Savings', branch: '', initialDeposit: 0, status: 'Active' };
+
+      },
+
+      error: (err: any) => {
+
+        console.error('Error creating account:', err);
+
+        alert('Error creating account: ' + (err?.error?.message || 'Unknown error'));
+
+      }
+
+    });
+
+  }
+ 
+  deleteAccount(accountId: string) {
+
+    if (!confirm('Are you sure you want to delete this account?')) return;
+
+    this.accountService.deleteAccount(accountId).subscribe({
+
+      next: () => {
+
+        alert('Account deleted');
+
+        setTimeout(() => this.loadAccounts(), 300);
+
+      },
+
+      error: (err: any) => {
+
+        console.error('Delete failed', err);
+
+        alert('Failed to delete account');
+
+      }
+
+    });
+
+  }
+ 
+  editAccount(acc: any) {
+
+    this.editingId = acc.id || acc.accountNumber || null;
+
+    this.showCreateForm = true;
+
+    this.newAccount = {
+
+      customerName: acc.customerName || '',
+
+      customerId: acc.userId || acc.customerId || '',
+
+      accountType: acc.type || 'Savings',
+
+      branch: acc.branch || '',
+
+      initialDeposit: acc.balance || 0,
+
+      status: acc.status || 'Active'
+
+    };
+
+  }
+
 }
+ 
+ 

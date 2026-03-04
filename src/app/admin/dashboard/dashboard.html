@@ -4,12 +4,20 @@
         <p class="subtitle">Welcome to your administration panel.</p>
     </div>
 
-    <!-- STAT CARDS -->
     <div class="stats-grid">
-        <!-- Total Accounts -->
+        <div class="stat-card">
+            <div class="stat-icon bg-indigo-100 text-indigo-600">
+                <lucide-angular [img]="Users"></lucide-angular>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">Total Users</p>
+                <h3 class="stat-value">{{ totalUsers }}</h3>
+            </div>
+        </div>
+
         <div class="stat-card">
             <div class="stat-icon bg-blue-100 text-blue-600">
-                <lucide-angular [img]="Users"></lucide-angular>
+                <lucide-angular [img]="Activity"></lucide-angular> 
             </div>
             <div class="stat-content">
                 <p class="stat-label">Total Accounts</p>
@@ -17,7 +25,6 @@
             </div>
         </div>
 
-        <!-- Total Balance -->
         <div class="stat-card">
             <div class="stat-icon bg-purple-100 text-purple-600">
                 <lucide-angular [img]="IndianRupee"></lucide-angular>
@@ -28,7 +35,6 @@
             </div>
         </div>
 
-        <!-- Total Transactions -->
         <div class="stat-card">
             <div class="stat-icon bg-pink-100 text-pink-600">
                 <lucide-angular [img]="Activity"></lucide-angular>
@@ -39,7 +45,6 @@
             </div>
         </div>
 
-        <!-- Pending Approvals -->
         <div class="stat-card cursor-pointer hover:shadow-md transition">
             <div class="stat-icon bg-orange-100 text-orange-600">
                 <lucide-angular [img]="CheckCircle"></lucide-angular>
@@ -51,12 +56,14 @@
         </div>
     </div>
 
-    <!-- CHARTS -->
     <div class="charts-grid">
         <div class="chart-card">
             <h3 class="chart-title">Account Type Distribution</h3>
             <div class="chart-wrapper pie-wrapper">
-                <canvas baseChart [type]="pieChartType" [data]="pieChartData" [options]="pieChartOptions">
+                <canvas baseChart 
+                        [type]="pieChartType" 
+                        [data]="pieChartData" 
+                        [options]="pieChartOptions">
                 </canvas>
             </div>
         </div>
@@ -64,7 +71,10 @@
         <div class="chart-card col-span-2">
             <h3 class="chart-title">Monthly Transaction Trends</h3>
             <div class="chart-wrapper line-wrapper">
-                <canvas baseChart [type]="lineChartType" [data]="lineChartData" [options]="lineChartOptions">
+                <canvas baseChart 
+                        [type]="lineChartType" 
+                        [data]="lineChartData" 
+                        [options]="lineChartOptions">
                 </canvas>
             </div>
         </div>

@@ -1,8 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UserService } from '../../core/services/user';
-import { User } from '../../core/services/auth';
+import { UserService, User } from '../../core/services/user';
 import { LucideAngularModule, Edit2, Power } from 'lucide-angular';
 import { catchError, of } from 'rxjs';
 
@@ -40,17 +39,11 @@ export class UserManagement implements OnInit {
   }
 
   loadUsers() {
-    this.userService.getAllUsers().pipe(
-      catchError(() => {
-        // Fallback Mock Data if API is unavailable
-        return of([
-          { id: '1', firstName: 'John', lastName: 'Doe', email: 'john.doe@internal.bank', role: 'Manager', branch: 'Main', status: 'Active' },
-          { id: '2', firstName: 'Jane', lastName: 'Smith', email: 'jane.smith@internal.bank', role: 'Officer', branch: 'North', status: 'Active' },
-          { id: '3', firstName: 'Bob', lastName: 'Johnson', email: 'bob.j@internal.bank', role: 'Officer', branch: 'South', status: 'Inactive' }
-        ]);
-      })
-    ).subscribe(data => {
-      this.users = data;
+    this.userService.getUsers().subscribe({
+      next: (data) => {
+        this.users = data;
+      },
+      error: (err) => console.error('Failed to load users', err)
     });
   }
 
@@ -71,7 +64,7 @@ export class UserManagement implements OnInit {
   }
 
   onCreateUser() {
-    if (!this.newUser.firstName || !this.newUser.lastName || !this.newUser.email || !this.newUser.branch) {
+    if (!this.newUser.firstName.trim() || !this.newUser.lastName.trim() || !this.newUser.email.trim() || !this.newUser.branch.trim()) {
       alert('Please fill all required fields');
       return;
     }
