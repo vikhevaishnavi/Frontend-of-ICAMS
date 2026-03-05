@@ -1,5 +1,5 @@
 <div class="transaction-management-container">
- 
+
   <div class="header-section">
     <div>
       <h1 class="page-title">Transaction History</h1>
@@ -8,12 +8,12 @@
       </p>
     </div>
   </div>
- 
+
   <!-- Loading -->
   <div *ngIf="isLoading" class="empty-state">
     Loading transactions...
   </div>
- 
+
   <!-- Table -->
   <div class="table-container" *ngIf="!isLoading">
     <table class="transaction-table">
@@ -26,45 +26,51 @@
           <th>Status</th>
         </tr>
       </thead>
- 
+
       <tbody>
- 
-        <tr *ngFor="let txn of transactions">
- 
+
+        <tr *ngFor="let txn of paginatedTransactions">
+
           <td>
             {{ txn.timestamp | date:'short' }}
           </td>
- 
+
           <td>
             <span class="type-badge">
               {{ txn.type }}
             </span>
           </td>
- 
+
           <td class="fw-600">
-            {{ txn.accountId }}
+            {{ txn.type === 'TRANSFER' ? (txn.fromAccountId || txn.accountId || '-') + ' → '
+            + (txn.toAccountId || '-') : (txn.accountId || txn.fromAccountId || '-') }}
           </td>
- 
+
           <td>
             {{ txn.amount | currency:'INR':'symbol':'1.0-0' }}
           </td>
- 
+
           <td>
             {{ txn.status }}
           </td>
- 
+
         </tr>
- 
+
         <tr *ngIf="transactions.length === 0">
           <td colspan="5" class="empty-state">
             No transactions found.
           </td>
         </tr>
- 
+
       </tbody>
     </table>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-controls" *ngIf="totalPages > 1">
+      <button class="btn-secondary sm" (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+      <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+      <button class="btn-secondary sm" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+    </div>
   </div>
- 
+
 </div>
- 
- 

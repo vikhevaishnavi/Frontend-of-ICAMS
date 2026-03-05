@@ -288,9 +288,42 @@
 
 .empty-state {
     text-align: center;
-    padding: 40px !important;
-    color: #64748b !important;
+    padding: 3rem !important;
+    color: var(--text-muted);
     font-style: italic;
+}
+
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background-color: transparent;
+    border-top: 1px solid #e2e8f0;
+}
+
+.pagination-controls .btn-secondary.sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    border: 1px solid #cbd5e1;
+    background-color: white;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: 500;
+    color: #334155;
+}
+
+.pagination-controls .btn-secondary.sm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f8fafc;
+}
+
+.page-info {
+    font-size: 0.875rem;
+    color: #475569;
+    font-weight: 600;
 }
 
 .text-right {

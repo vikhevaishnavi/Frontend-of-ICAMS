@@ -1,6 +1,6 @@
- 
- 
- 
+
+
+
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { finalize } from 'rxjs/operators';
@@ -16,7 +16,7 @@ import { AccountService } from '../../core/services/account';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ApprovalService } from '../../core/services/approval.service';
- 
+
 @Component({
 
   selector: 'app-transaction-management',
@@ -37,7 +37,7 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
 
   accounts: any[] = [];
 
-  accountMap: Map<string, any> = new Map(); 
+  accountMap: Map<string, any> = new Map();
 
   showInitiateForm = false;
 
@@ -60,7 +60,7 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
     amount: 0
 
   };
- 
+
   statusFilter: string | null = null;
 
   private pollIntervalId: any = null;
@@ -76,7 +76,32 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
   noticeMessage: string | null = null;
 
   isEmbedded = false; // Set to true when embedded in dashboard
- 
+
+  // Pagination State
+  currentPage = 1;
+  itemsPerPage = 10;
+
+  get paginatedTransactions() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    return this.transactions.slice(startIndex, startIndex + this.itemsPerPage);
+  }
+
+  get totalPages() {
+    return Math.ceil(this.transactions.length / this.itemsPerPage);
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
   private showNotice(msg: string, timeout = 4000) {
 
     this.noticeMessage = msg;
@@ -84,7 +109,7 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
     setTimeout(() => this.noticeMessage = null, timeout);
 
   }
- 
+
   constructor(
 
     private transactionService: TransactionService,
@@ -97,12 +122,12 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
 
     private router: Router
 
-  ) {}
- 
+  ) { }
+
   ngOnInit(): void {
 
     this.loadAccounts();
- 
+
     // Only subscribe to route params if not embedded (embedded mode sets statusFilter directly)
 
     if (!this.isEmbedded) {
@@ -122,7 +147,7 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
     }
 
   }
- 
+
   loadAccounts(): void {
 
     this.accountService.getAllAccounts().subscribe({
@@ -146,7 +171,7 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
     });
 
   }
- 
+
   loadHistory(): void {
 
     this.historyLoading = true;
@@ -158,7 +183,7 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
       ? this.transactionService.getTransactionsByStatus(this.statusFilter)
 
       : this.transactionService.getAllTransactions();
- 
+
     source$.subscribe({
 
       next: (data: any) => {
@@ -190,6 +215,7 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
         }));
 
         this.transactions = list.sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        this.currentPage = 1;
 
         this.historyLoading = false;
 
@@ -206,13 +232,13 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
     });
 
   }
- 
+
   // Approve a pending transaction (uses the same ApprovalService as manager view)
 
   approveTransaction(tx: any) {
 
     if (!tx || !tx.id) return;
- 
+
     // Enforce officer approval limit
 
     const amount = Number(tx.amount || 0);
@@ -224,11 +250,11 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
       return;
 
     }
- 
+
     if (!confirm('Approve this transaction?')) return;
- 
+
     this.processingId = tx.id;
- 
+
     this.approvalService.submitDecision(tx.id, { status: 'COMPLETED', reason: 'Approved by Officer' }).subscribe({
 
       next: () => {
@@ -256,7 +282,7 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
     });
 
   }
- 
+
   escalateToManager(tx: any) {
 
     if (!tx || !tx.id) return;
@@ -268,7 +294,7 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
     this.showNotice('Escalation sent to manager. Redirecting...');
 
   }
- 
+
   setupPollingIfNeeded() {
 
     // Poll every 10 seconds when any filter is applied so changes (including comments)
@@ -292,7 +318,7 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
     }
 
   }
- 
+
   ngOnDestroy(): void {
 
     if (this.pollIntervalId) {
@@ -304,7 +330,7 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
     }
 
   }
- 
+
   validateAccount(accountId: string, fieldType: 'from' | 'to'): void {
 
     if (!accountId) {
@@ -316,7 +342,7 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
       return;
 
     }
- 
+
     const account = this.accountMap.get(String(accountId));
 
     if (account) {
@@ -338,7 +364,7 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
     }
 
   }
- 
+
   onInitiate(): void {
 
     // Parse amount as a number to avoid string comparison issues
@@ -354,7 +380,7 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
       return;
 
     }
- 
+
     if (!amount || amount <= 0) {
 
       this.showNotice('Please enter a valid amount greater than 0');
@@ -362,7 +388,7 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
       return;
 
     }
- 
+
     if (!this.accountMap.has(String(this.transactionData.fromAccountId))) {
 
       this.showNotice('Invalid source account ID');
@@ -370,7 +396,7 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
       return;
 
     }
- 
+
     // 2. For Transfer only: require destination account
 
     if (this.transactionData.type === 'Transfer' && !this.transactionData.toAccountId) {
@@ -380,15 +406,15 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
       return;
 
     }
- 
+
     // 3. Build the Payload - match backend field names exactly
 
-    const finalToAccountId = this.transactionData.type === 'Transfer' 
+    const finalToAccountId = this.transactionData.type === 'Transfer'
 
-      ? this.transactionData.toAccountId 
+      ? this.transactionData.toAccountId
 
       : this.transactionData.fromAccountId;
- 
+
     const payload = {
 
       Type: this.transactionData.type,
@@ -400,9 +426,9 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
       ToAccountID: finalToAccountId
 
     };
- 
+
     console.log('Sending Payload:', payload);
- 
+
     this.isLoading = true;
 
     // disable polling while we're submitting to avoid confusion when results
@@ -418,7 +444,7 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
       this.pollIntervalId = null;
 
     }
- 
+
     this.transactionService.initiateTransaction(payload).pipe(
 
       finalize(() => {
@@ -482,18 +508,18 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
     });
 
   }
- 
+
   resetForm(): void {
 
-    this.transactionData = { 
+    this.transactionData = {
 
-      type: 'Deposit', 
+      type: 'Deposit',
 
-      fromAccountId: '', 
+      fromAccountId: '',
 
-      toAccountId: '', 
+      toAccountId: '',
 
-      amount: 0 
+      amount: 0
 
     };
 
@@ -505,4 +531,3 @@ export class TransactionManagementComponent implements OnInit, OnDestroy {
 
 }
 
- 

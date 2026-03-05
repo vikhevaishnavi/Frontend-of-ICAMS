@@ -1,6 +1,6 @@
- 
- 
- 
+
+
+
 import { Component, OnInit } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 import { AccountService } from '../../core/services/account';
- 
+
 @Component({
 
   selector: 'app-account-management',
@@ -50,9 +50,34 @@ export class AccountManagementComponent implements OnInit {
     status: 'Active'
 
   };
- 
-  constructor(private accountService: AccountService) {}
- 
+
+  // Pagination State
+  currentPage = 1;
+  itemsPerPage = 10;
+
+  get paginatedAccounts() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    return this.accounts.slice(startIndex, startIndex + this.itemsPerPage);
+  }
+
+  get totalPages() {
+    return Math.ceil(this.accounts.length / this.itemsPerPage);
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  constructor(private accountService: AccountService) { }
+
   ngOnInit(): void {
 
     // Automatically fetches data from DB when you open this section
@@ -60,7 +85,7 @@ export class AccountManagementComponent implements OnInit {
     this.loadAccounts();
 
   }
- 
+
   loadAccounts(): void {
 
     this.isLoading = true;
@@ -82,6 +107,7 @@ export class AccountManagementComponent implements OnInit {
         }
 
         this.accounts = data && Array.isArray(data) ? data : [];
+        this.currentPage = 1;
 
         this.isLoading = false;
 
@@ -100,7 +126,7 @@ export class AccountManagementComponent implements OnInit {
     });
 
   }
- 
+
   onSubmitAccount(): void {
 
     if (!this.newAccount.customerName || !this.newAccount.customerId) {
@@ -110,7 +136,7 @@ export class AccountManagementComponent implements OnInit {
       return;
 
     }
- 
+
     // If editing, call update
 
     if (this.editingId) {
@@ -146,7 +172,7 @@ export class AccountManagementComponent implements OnInit {
       return;
 
     }
- 
+
     // Map client form fields to backend expectation. Backend expects a 'Balance' or
 
     // similar field name, not 'initialDeposit'. Provide a payload that uses common
@@ -168,7 +194,7 @@ export class AccountManagementComponent implements OnInit {
       Status: this.newAccount.status
 
     };
- 
+
     this.accountService.createAccount(payload).subscribe({
 
       next: (res: any) => {
@@ -206,7 +232,7 @@ export class AccountManagementComponent implements OnInit {
         };
 
         this.accounts = [tempAcc, ...this.accounts];
- 
+
         // Refresh the list shortly after creation so mapping logic runs and server data is authoritative
 
         setTimeout(() => this.loadAccounts(), 500);
@@ -226,7 +252,7 @@ export class AccountManagementComponent implements OnInit {
     });
 
   }
- 
+
   deleteAccount(accountId: string) {
 
     if (!confirm('Are you sure you want to delete this account?')) return;
@@ -252,7 +278,7 @@ export class AccountManagementComponent implements OnInit {
     });
 
   }
- 
+
   editAccount(acc: any) {
 
     this.editingId = acc.id || acc.accountNumber || null;
@@ -278,5 +304,4 @@ export class AccountManagementComponent implements OnInit {
   }
 
 }
- 
- 
+

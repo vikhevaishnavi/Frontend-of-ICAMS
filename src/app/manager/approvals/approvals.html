@@ -1,9 +1,9 @@
 <div class="approvals-container">
- 
+
   <h2>Approval Management</h2>
- 
+
   <table class="approvals-table">
- 
+
     <thead>
       <tr>
         <th>Date</th>
@@ -13,52 +13,53 @@
         <th>Action</th>
       </tr>
     </thead>
- 
+
     <tbody>
- 
-      <tr *ngFor="let req of pendingApprovals">
- 
+
+      <tr *ngFor="let req of paginatedApprovals">
+
         <td>{{ req.approvalDate | date:'medium' }}</td>
- 
+
         <td>{{ req.approvalID }}</td>
- 
+
         <td>{{ req.decision }}</td>
- 
+
         <td>{{ req.comments }}</td>
- 
-       <td>
-  <div class="action-buttons">
- 
-    <button
-      class="action-btn approve-btn"
-      *ngIf="req.decision === 'Pending'"
-      (click)="handleDecision(req.approvalID, 'Approved')">
-      Approve
-    </button>
- 
-    <button
-      class="action-btn reject-btn"
-      *ngIf="req.decision === 'Pending'"
-      (click)="handleDecision(req.approvalID, 'Rejected')">
-      Reject
-    </button>
- 
-  </div>
-</td>
- 
- 
+
+        <td>
+          <div class="action-buttons">
+
+            <button class="action-btn approve-btn" *ngIf="req.decision === 'Pending'"
+              (click)="handleDecision(req.approvalID, 'Approved')">
+              Approve
+            </button>
+
+            <button class="action-btn reject-btn" *ngIf="req.decision === 'Pending'"
+              (click)="handleDecision(req.approvalID, 'Rejected')">
+              Reject
+            </button>
+
+          </div>
+        </td>
+
+
       </tr>
- 
+
       <tr *ngIf="pendingApprovals.length === 0">
         <td colspan="5">
           No Pending Approvals
         </td>
       </tr>
- 
+
     </tbody>
- 
+
   </table>
- 
+
+  <!-- Pagination Controls -->
+  <div class="pagination-controls" *ngIf="totalPages > 1">
+    <button class="btn-secondary sm" (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+    <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+    <button class="btn-secondary sm" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+  </div>
+
 </div>
- 
- 

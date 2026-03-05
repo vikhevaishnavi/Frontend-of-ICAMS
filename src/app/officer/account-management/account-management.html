@@ -1,99 +1,106 @@
- 
- 
- 
 <div class="account-management-container">
-<div class="header-section">
-<div>
-<h1 class="page-title">Account Management</h1>
-<p class="subtitle">Create and manage customer accounts.</p>
-</div>
-<button *ngIf="!isEmbedded" class="btn-primary" (click)="showCreateForm = !showCreateForm">
+      <div class="header-section">
+            <div>
+                  <h1 class="page-title">Account Management</h1>
+                  <p class="subtitle">Create and manage customer accounts.</p>
+            </div>
+            <button *ngIf="!isEmbedded" class="btn-primary" (click)="showCreateForm = !showCreateForm">
 
-      {{ showCreateForm ? 'Cancel' : 'Create Customer Account' }}
-</button>
-</div>
- 
-  <div class="form-panel" *ngIf="showCreateForm && !isEmbedded">
-<div class="panel-header">
-<h2>Create Customer Account</h2>
-</div>
-<div class="form-grid">
-<div class="input-group">
-<label>Customer Name</label>
-<input type="text" [(ngModel)]="newAccount.customerName" placeholder="Enter customer name">
-</div>
- 
-      <div class="input-group">
-<label>Customer ID</label>
-<input type="text" [(ngModel)]="newAccount.customerId" placeholder="Enter customer ID">
-</div>
- 
-      <div class="input-group">
-<label>Account Type</label>
-<select [(ngModel)]="newAccount.accountType">
-<option value="Savings">Savings</option>
-<option value="Current">Current</option>
-<option value="Business">Business</option>
-</select>
-</div>
- 
-      <div class="input-group">
-<label>Branch</label>
-<input type="text" [(ngModel)]="newAccount.branch" placeholder="Enter branch name">
-</div>
- 
-      <div class="input-group">
-<label>Initial Deposit (₹)</label>
-<input type="number" [(ngModel)]="newAccount.initialDeposit" placeholder="0">
-</div>
- 
-      <div class="input-group">
-<label>Status</label>
-<select [(ngModel)]="newAccount.status">
-<option value="Active">Active</option>
-<option value="Inactive">Inactive</option>
-</select>
-</div>
-</div>
-<div class="form-actions">
-<button class="btn-secondary" (click)="showCreateForm = false">Cancel</button>
-<button class="btn-primary" (click)="onSubmitAccount()">Create Account</button>
-</div>
-</div>
- 
-  <div class="table-container">
-<div *ngIf="isLoading" style="padding: 40px; text-align: center; color: #64748b;">Loading accounts...</div>
-<table class="account-table" *ngIf="!isLoading">
-<thead>
-<tr>
-<th>Account Number</th>
-<th>Customer Name</th>
-<th>Type</th>
-<th>Balance</th>
-<th>Status</th>
-<th>Created</th>
-<th *ngIf="!isEmbedded">Actions</th>
-</tr>
-</thead>
-<tbody>
-<tr *ngFor="let acc of accounts">
-<td class="font-mono fw-600">{{ acc.accountNumber || acc.id || '-' }}</td>
-<td>{{ acc.customerName || '-' }}</td>
-<td><span [ngClass]="'type-badge ' + (acc.type?.toLowerCase() || 'savings')">{{ acc.type || '-' }}</span></td>
-<td class="fw-600">{{ acc.balance ? (acc.balance | currency:'INR') : '₹0' }}</td>
-<td><span [ngClass]="'status-indicator ' + (acc.status?.toLowerCase() || 'pending')">{{ acc.status || '-' }}</span></td>
-<td>{{ acc.createdAt ? (acc.createdAt | date:'short') : '-' }}</td>
-<td *ngIf="!isEmbedded">
-<button class="btn-small btn-primary" (click)="editAccount(acc)">Edit</button>
-<button class="btn-small btn-secondary" (click)="deleteAccount(acc.id || acc.accountNumber)">Delete</button>
-</td>
-</tr>
-<tr *ngIf="accounts.length === 0 && !isLoading">
-<td colspan="7" class="empty-state">No accounts found. Click "Create Customer Account" to add one.</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+                  {{ showCreateForm ? 'Cancel' : 'Create Customer Account' }}
+            </button>
+      </div>
 
- 
+      <div class="form-panel" *ngIf="showCreateForm && !isEmbedded">
+            <div class="panel-header">
+                  <h2>Create Customer Account</h2>
+            </div>
+            <div class="form-grid">
+                  <div class="input-group">
+                        <label>Customer Name</label>
+                        <input type="text" [(ngModel)]="newAccount.customerName" placeholder="Enter customer name">
+                  </div>
+
+                  <div class="input-group">
+                        <label>Customer ID</label>
+                        <input type="text" [(ngModel)]="newAccount.customerId" placeholder="Enter customer ID">
+                  </div>
+
+                  <div class="input-group">
+                        <label>Account Type</label>
+                        <select [(ngModel)]="newAccount.accountType">
+                              <option value="Savings">Savings</option>
+                              <option value="Current">Current</option>
+                              <option value="Business">Business</option>
+                        </select>
+                  </div>
+
+                  <div class="input-group">
+                        <label>Branch</label>
+                        <input type="text" [(ngModel)]="newAccount.branch" placeholder="Enter branch name">
+                  </div>
+
+                  <div class="input-group">
+                        <label>Initial Deposit (₹)</label>
+                        <input type="number" [(ngModel)]="newAccount.initialDeposit" placeholder="0">
+                  </div>
+
+                  <div class="input-group">
+                        <label>Status</label>
+                        <select [(ngModel)]="newAccount.status">
+                              <option value="Active">Active</option>
+                              <option value="Inactive">Inactive</option>
+                        </select>
+                  </div>
+            </div>
+            <div class="form-actions">
+                  <button class="btn-secondary" (click)="showCreateForm = false">Cancel</button>
+                  <button class="btn-primary" (click)="onSubmitAccount()">Create Account</button>
+            </div>
+      </div>
+
+      <div class="table-container">
+            <div *ngIf="isLoading" style="padding: 40px; text-align: center; color: #64748b;">Loading accounts...</div>
+            <table class="account-table" *ngIf="!isLoading">
+                  <thead>
+                        <tr>
+                              <th>Account Number</th>
+                              <th>Customer Name</th>
+                              <th>Type</th>
+                              <th>Balance</th>
+                              <th>Status</th>
+                              <th>Created</th>
+                              <th *ngIf="!isEmbedded">Actions</th>
+                        </tr>
+                  </thead>
+                  <tbody>
+                        <tr *ngFor="let acc of paginatedAccounts">
+                              <td class="font-mono fw-600">{{ acc.accountNumber || acc.id || '-' }}</td>
+                              <td>{{ acc.customerName || '-' }}</td>
+                              <td><span [ngClass]="'type-badge ' + (acc.type?.toLowerCase() || 'savings')">{{ acc.type
+                                          || '-' }}</span></td>
+                              <td class="fw-600">{{ acc.balance ? (acc.balance | currency:'INR') : '₹0' }}</td>
+                              <td><span [ngClass]="'status-indicator ' + (acc.status?.toLowerCase() || 'pending')">{{
+                                          acc.status || '-' }}</span></td>
+                              <td>{{ acc.createdAt ? (acc.createdAt | date:'short') : '-' }}</td>
+                              <td *ngIf="!isEmbedded">
+                                    <button class="btn-small btn-primary" (click)="editAccount(acc)">Edit</button>
+                                    <button class="btn-small btn-secondary"
+                                          (click)="deleteAccount(acc.id || acc.accountNumber)">Delete</button>
+                              </td>
+                        </tr>
+                        <tr *ngIf="accounts.length === 0 && !isLoading">
+                              <td colspan="7" class="empty-state">No accounts found. Click "Create Customer Account" to
+                                    add one.</td>
+                        </tr>
+                  </tbody>
+            </table>
+
+            <!-- Pagination Controls -->
+            <div class="pagination-controls" *ngIf="totalPages > 1 && !isLoading">
+                  <button class="btn-secondary sm" (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+                  <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+                  <button class="btn-secondary sm" (click)="nextPage()"
+                        [disabled]="currentPage === totalPages">Next</button>
+            </div>
+      </div>
+</div>

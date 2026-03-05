@@ -1,68 +1,62 @@
- 
- 
- 
 <div class="login-container">
-<!-- Left Side: Login Form -->
-<div class="login-form-side">
-<div class="logo-container">
-<div class="logo-icon"></div>
-<span class="logo-text">InternalBank</span>
-</div>
- 
+  <!-- Left Side: Login Form -->
+  <div class="login-form-side">
+    <div class="logo-container">
+      <div class="logo-icon"></div>
+      <span class="logo-text">InternalBank</span>
+    </div>
+
     <div class="form-wrapper">
-<form (ngSubmit)="onSubmit()">
-<div class="input-group">
-<label for="email">Email Address</label>
-<input type="email" id="email" name="email" [(ngModel)]="credentials.Email" placeholder="user@internal.bank"
-
-            required>
-</div>
- 
+      <form (ngSubmit)="onSubmit()">
         <div class="input-group">
-<label for="password">Password</label>
-<input type="password" id="password" name="password" [(ngModel)]="credentials.Password"
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" [(ngModel)]="credentials.email" placeholder="user@internal.bank"
+            required>
+        </div>
 
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" [(ngModel)]="credentials.password"
             placeholder="••••••••••" required>
-</div>
- 
+        </div>
+
         <div class="form-actions">
-<a href="#" class="cant-log-in">Can't log in?</a>
-<button type="submit" class="btn-primary" [disabled]="isLoading">
+          <a href="#" class="cant-log-in">Can't log in?</a>
+          <button type="submit" class="btn-primary" [disabled]="isLoading">
 
             {{ isLoading ? 'LOGGING IN...' : 'LOG IN' }}
-</button>
-</div>
- 
+          </button>
+        </div>
+
         <div *ngIf="error" class="error-message">
 
           {{ error }}
-</div>
-</form>
-</div>
- 
+        </div>
+      </form>
+    </div>
+
     <div class="warning-footer">
-<div class="warning-text">
-<strong>Warning!</strong>
-<p>InternalBank does not require installation of any additional software. Be advised to protect from network
+      <div class="warning-text">
+        <strong>Warning!</strong>
+        <p>InternalBank does not require installation of any additional software. Be advised to protect from network
 
           pretending InternalBank Support.</p>
-</div>
-<a href="#" class="more-link">MORE</a>
-</div>
-</div>
- 
+      </div>
+      <a href="#" class="more-link">MORE</a>
+    </div>
+  </div>
+
   <!-- Right Side: Abstract Graphic -->
-<div class="login-graphic-side">
-<div class="graphic-content">
-<h1>Welcome to <span>InternalBank</span></h1>
-<p>Log in to access your account</p>
-</div>
- 
+  <div class="login-graphic-side">
+    <div class="graphic-content">
+      <h1>Welcome to <span>InternalBank</span></h1>
+      <p>Log in to access your account</p>
+    </div>
+
     <!-- Abstract Shapes for Background -->
-<div class="shape shape-1"></div>
-<div class="shape shape-2"></div>
-<div class="shape shape-3"></div>
-<div class="shape shape-4"></div>
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+    <div class="shape shape-4"></div>
+  </div>
 </div>
-</div>
- 

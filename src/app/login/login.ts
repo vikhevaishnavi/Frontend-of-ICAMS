@@ -1,6 +1,6 @@
- 
- 
- 
+
+
+
 import { Component, inject } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { AuthService } from '../core/services/auth';
- 
+
 @Component({
 
   selector: 'app-login',
@@ -30,35 +30,29 @@ export class LoginComponent {
   authService = inject(AuthService);
 
   router = inject(Router);
- 
+
   credentials = {
-
-    Email: '',
-
-    Password: ''
-
+    email: '',
+    password: ''
   };
- 
+
   error = '';
 
   isLoading = false;
- 
+
   onSubmit() {
 
     // ensure we're checking the fields with the correct casing
 
-    if (!this.credentials.Email || !this.credentials.Password) {
-
+    if (!this.credentials.email || !this.credentials.password) {
       this.error = 'Please enter both Email and Password.';
-
       return;
-
     }
- 
+
     this.isLoading = true;
 
     this.error = '';
- 
+
     this.authService.login(this.credentials).subscribe({
 
       next: () => {
@@ -92,4 +86,3 @@ export class LoginComponent {
   }
 
 }
- 

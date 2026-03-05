@@ -1,17 +1,17 @@
 <div class="account-management-container">
- 
+
     <div class="header-section">
         <div>
             <h1 class="page-title">Accounts Directory</h1>
             <p class="subtitle">Read-only overview of all branch customer accounts.</p>
         </div>
     </div>
- 
+
     <!-- Loading State -->
     <div *ngIf="isLoading" class="empty-state">
         Loading accounts...
     </div>
- 
+
     <!-- Accounts Table -->
     <div class="table-container" *ngIf="!isLoading">
         <table class="account-table">
@@ -26,7 +26,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let account of accounts">
+                <tr *ngFor="let account of paginatedAccounts">
                     <td class="fw-600">{{ account.accountNumber }}</td>
                     <td>{{ account.customerName }}</td>
                     <td>{{ account.type }}</td>
@@ -34,8 +34,7 @@
                         {{ account.balance | currency:'INR':'symbol':'1.0-0' }}
                     </td>
                     <td>
-                        <span
-                          [ngClass]="{
+                        <span [ngClass]="{
                             'status-active': account.status === 'Active',
                             'status-closed': account.status === 'Closed',
                             'status-pending': account.status === 'Pending'
@@ -45,7 +44,7 @@
                     </td>
                     <td>{{ account.createdAt | date:'mediumDate' }}</td>
                 </tr>
- 
+
                 <!-- Empty State -->
                 <tr *ngIf="accounts.length === 0">
                     <td colspan="6" class="empty-state">
@@ -54,7 +53,12 @@
                 </tr>
             </tbody>
         </table>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-controls" *ngIf="totalPages > 1">
+            <button class="btn-secondary sm" (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+            <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+            <button class="btn-secondary sm" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+        </div>
     </div>
 </div>
- 
- 

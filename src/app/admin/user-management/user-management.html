@@ -11,44 +11,47 @@
 
     <div class="form-panel" *ngIf="showCreateForm" [@slideInOut]>
         <div class="panel-header">
-            <h2>Create New User</h2>
+            <h2>{{ editingUserId ? 'Edit User' : 'Create New User' }}</h2>
         </div>
 
         <form (ngSubmit)="onCreateUser()" class="create-form">
             <div class="form-grid">
-    <div class="input-group full-width">
-        <label for="name">Full Name</label>
-        <input type="text"  name="name" [(ngModel)]="newUser.name" placeholder="Enter full name" required>
-    </div>
+                <div class="input-group full-width">
+                    <label for="name">Full Name</label>
+                    <input type="text" name="name" [(ngModel)]="newUser.name" placeholder="Enter full name" required>
+                </div>
 
-    <div class="input-group">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" name="email" [(ngModel)]="newUser.email" placeholder="example@bank.com" required>
-    </div>
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" [(ngModel)]="newUser.email"
+                        placeholder="example@bank.com" [disabled]="!!editingUserId" required>
+                </div>
 
-    <div class="input-group">
-        <label for="password">Password</label>
-        <input type="password"  name="password" [(ngModel)]="newUser.password" placeholder="Enter secure password" required>
-    </div>
+                <div class="input-group" *ngIf="!editingUserId">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" [(ngModel)]="newUser.password"
+                        placeholder="Enter secure password" required>
+                </div>
 
-    <div class="input-group">
-        <label for="branch">Branch</label>
-        <input type="text" id="branch" name="branch" [(ngModel)]="newUser.branch" placeholder="e.g. B001" required>
-    </div>
+                <div class="input-group">
+                    <label for="branch">Branch</label>
+                    <input type="text" id="branch" name="branch" [(ngModel)]="newUser.branch" placeholder="e.g. B001"
+                        required>
+                </div>
 
-    <div class="input-group">
-        <label for="role">Role</label>
-        <select id="role" name="role" [(ngModel)]="newUser.role" required>
-            <option value="Manager">Manager</option>
-            <option value="Officer">Officer</option>
-        </select>
-    </div>
-</div>
+                <div class="input-group">
+                    <label for="role">Role</label>
+                    <select id="role" name="role" [(ngModel)]="newUser.role" required>
+                        <option value="Manager">Manager</option>
+                        <option value="Officer">Officer</option>
+                    </select>
+                </div>
+            </div>
 
             <div class="form-actions">
                 <button type="button" class="btn-secondary" (click)="toggleCreateForm()">Cancel</button>
                 <button type="submit" class="btn-primary" [disabled]="isSubmitting">
-                    {{ isSubmitting ? 'Creating...' : 'Create User' }}
+                    {{ isSubmitting ? 'Saving...' : (editingUserId ? 'Update User' : 'Create User') }}
                 </button>
             </div>
         </form>
@@ -67,7 +70,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let user of users">
+                <tr *ngFor="let user of paginatedUsers">
                     <td>
                         <div class="user-cell">
                             <div class="avatar-small">
@@ -92,11 +95,9 @@
                         <button class="action-btn edit-btn" (click)="editUser(user)" title="Edit User">
                             <lucide-angular [img]="Edit2"></lucide-angular>
                         </button>
-                        <button class="action-btn toggle-btn" 
-                                [class.suspend]="user.Status === 'Active'"
-                                [class.activate]="user.Status === 'Inactive'" 
-                                (click)="toggleUserStatus(user)"
-                                [title]="user.Status === 'Active' ? 'Suspend User' : 'Activate User'">
+                        <button class="action-btn toggle-btn" [class.suspend]="user.Status === 'Active'"
+                            [class.activate]="user.Status === 'Inactive'" (click)="toggleUserStatus(user)"
+                            [title]="user.Status === 'Active' ? 'Suspend User' : 'Activate User'">
                             <lucide-angular [img]="Power"></lucide-angular>
                         </button>
                     </td>
@@ -109,5 +110,12 @@
                 </tr>
             </tbody>
         </table>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-controls" *ngIf="totalPages > 1">
+            <button class="btn-secondary sm" (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+            <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+            <button class="btn-secondary sm" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+        </div>
     </div>
 </div>

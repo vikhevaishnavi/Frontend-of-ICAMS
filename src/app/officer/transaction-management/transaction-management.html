@@ -1,126 +1,118 @@
- 
- 
- 
 <div class="transaction-management-container">
-<div class="header-section">
-<div>
-<h1 class="page-title">Transaction Management</h1>
-<p class="subtitle">Initiate deposits, withdrawals, and transfers.</p>
+      <div class="header-section">
+            <div>
+                  <h1 class="page-title">Transaction Management</h1>
+                  <p class="subtitle">Initiate deposits, withdrawals, and transfers.</p>
+            </div>
+            <button *ngIf="!isEmbedded" class="btn-primary" (click)="showInitiateForm = !showInitiateForm">
+
+                  {{ showInitiateForm ? 'Cancel' : 'Initiate Transaction' }}
+            </button>
+      </div>
+
+      <div class="toast" *ngIf="noticeMessage">{{ noticeMessage }}</div>
+
+      <div class="form-panel" *ngIf="showInitiateForm && !isEmbedded">
+            <div class="panel-header">
+                  <h2>New Transaction</h2>
+            </div>
+            <div class="form-grid">
+                  <div class="input-group">
+                        <label>Transaction Type</label>
+                        <select [(ngModel)]="transactionData.type">
+                              <option value="Deposit">Deposit</option>
+                              <option value="Withdraw">Withdraw</option>
+                              <option value="Transfer">Transfer</option>
+                        </select>
+                  </div>
+
+                  <div class="input-group" *ngIf="transactionData.type !== 'Transfer'">
+                        <label>Account ID</label>
+                        <input type="text" [(ngModel)]="transactionData.fromAccountId"
+                              (change)="validateAccount(transactionData.fromAccountId, 'from')"
+                              placeholder="e.g. ACC001 or customer account number">
+                        <small
+                              [style.color]="fromAccountError.includes('✓') ? 'green' : fromAccountError.includes('✗') ? 'red' : 'gray'">
+
+                              {{ fromAccountError }}
+                        </small>
+                  </div>
+
+                  <div class="input-group" *ngIf="transactionData.type === 'Transfer'">
+                        <label>From Account ID</label>
+                        <input type="text" [(ngModel)]="transactionData.fromAccountId"
+                              (change)="validateAccount(transactionData.fromAccountId, 'from')"
+                              placeholder="e.g. ACC001 or customer account number">
+                        <small
+                              [style.color]="fromAccountError.includes('✓') ? 'green' : fromAccountError.includes('✗') ? 'red' : 'gray'">
+
+                              {{ fromAccountError }}
+                        </small>
+                  </div>
+
+                  <div class="input-group" *ngIf="transactionData.type === 'Transfer'">
+                        <label>To Account ID (Destination)</label>
+                        <input type="text" [(ngModel)]="transactionData.toAccountId"
+                              (change)="validateAccount(transactionData.toAccountId, 'to')"
+                              placeholder="e.g. ACC002 or customer account number">
+                        <small
+                              [style.color]="toAccountError.includes('✓') ? 'green' : toAccountError.includes('✗') ? 'red' : 'gray'">
+
+                              {{ toAccountError }}
+                        </small>
+                  </div>
+
+                  <div class="input-group">
+                        <label>Amount (₹)</label>
+                        <input type="number" [(ngModel)]="transactionData.amount" placeholder="0">
+                  </div>
+            </div>
+            <div class="form-actions">
+                  <button class="btn-secondary" (click)="showInitiateForm = false"
+                        [disabled]="isLoading">Cancel</button>
+                  <button class="btn-primary" (click)="onInitiate()" [disabled]="isLoading">{{ isLoading ?
+                        'Processing...' : 'Submit Transaction' }}</button>
+            </div>
+      </div>
+
+      <div class="table-container">
+            <div class="table-header">
+                  <h3>Transaction History</h3>
+            </div>
+            <div *ngIf="transactions.length === 0" style="padding: 40px; text-align: center; color: #64748b;">No
+                  transactions found.</div>
+            <table class="transaction-table" *ngIf="transactions.length > 0">
+                  <thead>
+                        <tr>
+                              <th>Date</th>
+                              <th>Type</th>
+                              <th>AccountID</th>
+                              <th>Amount</th>
+                              <th>Status</th>
+                        </tr>
+                  </thead>
+                  <tbody>
+                        <tr *ngFor="let tx of paginatedTransactions">
+                              <td>{{ tx.timestamp ? (tx.timestamp | date:'short') : '-' }}</td>
+                              <td><span [ngClass]="'type-badge ' + (tx.type?.toLowerCase() || 'deposit')">{{ tx.type
+                                          }}</span></td>
+                              <td class="font-mono fw-600">
+                                    {{ tx.type === 'TRANSFER' ? (tx.fromAccountId || tx.accountId || '-') + ' → ' +
+                                    (tx.toAccountId || '-') : (tx.accountId || tx.fromAccountId || '-') }}
+                              </td>
+                              <td class="fw-600">₹{{ tx.amount || '0' }}</td>
+                              <td><span [ngClass]="'status-indicator ' + (tx.status?.toLowerCase() || 'pending')">{{
+                                          tx.status || '-' }}</span></td>
+                        </tr>
+                  </tbody>
+            </table>
+
+            <!-- Pagination Controls -->
+            <div class="pagination-controls" *ngIf="totalPages > 1 && !historyLoading">
+                  <button class="btn-secondary sm" (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+                  <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+                  <button class="btn-secondary sm" (click)="nextPage()"
+                        [disabled]="currentPage === totalPages">Next</button>
+            </div>
+      </div>
 </div>
-<button *ngIf="!isEmbedded" class="btn-primary" (click)="showInitiateForm = !showInitiateForm">
-
-      {{ showInitiateForm ? 'Cancel' : 'Initiate Transaction' }}
-</button>
-</div>
- 
-  <div class="toast" *ngIf="noticeMessage">{{ noticeMessage }}</div>
- 
-  <div class="form-panel" *ngIf="showInitiateForm && !isEmbedded">
-<div class="panel-header">
-<h2>New Transaction</h2>
-</div>
-<div class="form-grid">
-<div class="input-group">
-<label>Transaction Type</label>
-<select [(ngModel)]="transactionData.type">
-<option value="Deposit">Deposit</option>
-<option value="Withdraw">Withdraw</option>
-<option value="Transfer">Transfer</option>
-</select>
-</div>
- 
-      <div class="input-group" *ngIf="transactionData.type !== 'Transfer'">
-<label>Account ID</label>
-<input 
-
-          type="text" 
-
-          [(ngModel)]="transactionData.fromAccountId" 
-
-          (change)="validateAccount(transactionData.fromAccountId, 'from')"
-
-          placeholder="e.g. ACC001 or customer account number"
->
-<small [style.color]="fromAccountError.includes('✓') ? 'green' : fromAccountError.includes('✗') ? 'red' : 'gray'">
-
-          {{ fromAccountError }}
-</small>
-</div>
- 
-      <div class="input-group" *ngIf="transactionData.type === 'Transfer'">
-<label>From Account ID</label>
-<input 
-
-          type="text" 
-
-          [(ngModel)]="transactionData.fromAccountId" 
-
-          (change)="validateAccount(transactionData.fromAccountId, 'from')"
-
-          placeholder="e.g. ACC001 or customer account number"
->
-<small [style.color]="fromAccountError.includes('✓') ? 'green' : fromAccountError.includes('✗') ? 'red' : 'gray'">
-
-          {{ fromAccountError }}
-</small>
-</div>
- 
-      <div class="input-group" *ngIf="transactionData.type === 'Transfer'">
-<label>To Account ID (Destination)</label>
-<input 
-
-          type="text" 
-
-          [(ngModel)]="transactionData.toAccountId" 
-
-          (change)="validateAccount(transactionData.toAccountId, 'to')"
-
-          placeholder="e.g. ACC002 or customer account number"
->
-<small [style.color]="toAccountError.includes('✓') ? 'green' : toAccountError.includes('✗') ? 'red' : 'gray'">
-
-          {{ toAccountError }}
-</small>
-</div>
- 
-      <div class="input-group">
-<label>Amount (₹)</label>
-<input type="number" [(ngModel)]="transactionData.amount" placeholder="0">
-</div>
-</div>
-<div class="form-actions">
-<button class="btn-secondary" (click)="showInitiateForm = false" [disabled]="isLoading">Cancel</button>
-<button class="btn-primary" (click)="onInitiate()" [disabled]="isLoading">{{ isLoading ? 'Processing...' : 'Submit Transaction' }}</button>
-</div>
-</div>
- 
-  <div class="table-container">
-<div class="table-header">
-<h3>Transaction History</h3>
-</div>
-<div *ngIf="transactions.length === 0" style="padding: 40px; text-align: center; color: #64748b;">No transactions found.</div>
-<table class="transaction-table" *ngIf="transactions.length > 0">
-<thead>
-<tr>
-<th>Date</th>
-<th>Type</th>
-<th>AccountID</th>
-<th>Amount</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr *ngFor="let tx of transactions">
-<td>{{ tx.timestamp ? (tx.timestamp | date:'short') : '-' }}</td>
-<td><span [ngClass]="'type-badge ' + (tx.type?.toLowerCase() || 'deposit')">{{ tx.type }}</span></td>
-<td class="font-mono fw-600">
-
-            {{ tx.type === 'TRANSFER' ? (tx.fromAccountId || tx.accountId || '-') + ' → ' + (tx.toAccountId || '-') : (tx.accountId || tx.fromAccountId || '-') }}
-</td>
-<td class="fw-600">₹{{ tx.amount || '0' }}</td>
-<td><span [ngClass]="'status-indicator ' + (tx.status?.toLowerCase() || 'pending')">{{ tx.status || '-' }}</span></td>
-</tr>
-</tbody>
-</table>
-</div> </div>
- 
