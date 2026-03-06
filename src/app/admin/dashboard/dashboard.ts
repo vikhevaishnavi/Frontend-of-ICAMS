@@ -17,6 +17,7 @@ import {
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { UserService } from '../../core/services/user';
+import { ApprovalService } from '../../core/services/approval.service';
 import { FormsModule } from '@angular/forms'; // Required for newUser binding
 
 @Component({
@@ -31,6 +32,7 @@ export class Dashboard implements OnInit {
   private accountService = inject(AccountService);
   private transactionService = inject(TransactionService);
   private userService = inject(UserService);
+  private approvalService = inject(ApprovalService);
 
   // Icons
   readonly Users = Users;
@@ -44,8 +46,12 @@ export class Dashboard implements OnInit {
   totalUsers = 0;
   totalAccounts = 0;
   totalBalance = 0;
-  totalTransactions = 0;
   pendingApprovals = 0;
+
+  // Getter for total transactions - calculates from recentTransactions array
+  get totalTransactions(): number {
+    return this.recentTransactions.length;
+  }
 
 
   users: any[] = [];
@@ -131,28 +137,39 @@ export class Dashboard implements OnInit {
   }
 
   loadDashboardData() {
+    console.log('Loading dashboard data...');
     forkJoin({
       accounts: this.accountService.getAllAccounts().pipe(catchError(() => of([]))),
-      transactions: this.transactionService.getAllTransactions().pipe(catchError(() => of([]))),
-      users: this.userService.getUsers().pipe(catchError(() => of([])))
+      transactions: this.transactionService.getAllTransactions().pipe(
+        catchError((err) => {
+          console.error('Transactions API Error:', err);
+          return of([]);
+        })
+      ),
+      users: this.userService.getUsers().pipe(catchError(() => of([]))),
+      approvals: this.approvalService.getApprovals().pipe(catchError(() => of([])))
     }).subscribe({
       next: (res: any) => {
+        console.log('Full response received:', res);
         const accounts: Account[] = res.accounts || [];
         const transactions: Transaction[] = res.transactions || [];
         const users: any[] = res.users || [];
+        const approvals: any[] = res.approvals || [];
 
+        console.log('Parsed transactions:', transactions);
         // 1. Update Stats Cards
         this.totalAccounts = accounts.length;
         this.totalUsers = users.length;
-        this.totalTransactions = transactions.length;
+        this.recentTransactions = transactions;
+        console.log('Total transactions loaded:', this.totalTransactions);
 
         // Mapping balances
         this.totalBalance = accounts.reduce((sum: number, acc: any) =>
           sum + (acc.balance || acc.Balance || 0), 0);
 
-        // FIX: Checking for both 'status' and 'Status' for Pending Approvals
-        this.pendingApprovals = accounts.filter((a: any) =>
-          (a.status === 'Pending' || a.Status === 'Pending')
+        // FIX: Use ApprovalService to get pending approvals (consistent with Manager Dashboard)
+        this.pendingApprovals = approvals.filter((a: any) =>
+          !a.decision || a.decision === 'Pending'
         ).length;
 
         // 2. Update Pie Chart

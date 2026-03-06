@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class ApprovalService {
     private http = inject(HttpClient);
-    private readonly API_URL = '/api/v1/approvals';
+    private readonly API_URL = '/api/approvals';
 
     getApprovals(): Observable<any[]> {
         return this.http.get<any[]>(this.API_URL);
